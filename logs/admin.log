@@ -1,0 +1,2 @@
+[2026-05-27T12:49:04.417Z] [ERROR] Admin login failed | {"requestId":"req_5b12aeda-58d0-48eb-8227-96b61e8f3450","error":"DATABASE_URL is not set. Create admin-panel/.env.local from admin-panel/.env.example and set a valid PostgreSQL connection string."}
+[2026-05-27T12:51:32.046Z] [INFO] Admin login successful | {"requestId":"req_91b3072a-c30f-4f16-bff6-091cbd7b8456","adminId":"53f1bce8-51cc-4dc1-b81d-af98e93be6fe"}

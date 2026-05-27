@@ -3,17 +3,8 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition, useRef } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
-import { Badge } from "./ui/badge";
 import {
   Search,
   ChevronLeft,
@@ -21,21 +12,22 @@ import {
   ArrowLeft,
   User,
   AlertTriangle,
+  KeyRound,
 } from "lucide-react";
 import type { TenantRecord } from "../lib/repositories/authRepository";
 import type { AdminUserRecord } from "../lib/repositories/adminRepository";
 import { RefreshButton } from "./refresh-button";
 
 const TENANT_STATUS_PILL: Record<string, string> = {
-  active: "bg-slate-950 text-white",
-  inactive: "bg-slate-200 text-slate-600",
-  suspended: "bg-slate-100 text-slate-500",
+  active: "bg-emerald-100 text-emerald-700",
+  inactive: "bg-slate-100 text-slate-500",
+  suspended: "bg-amber-100 text-amber-700",
 };
 
 const USER_STATUS_PILL: Record<string, string> = {
-  active: "bg-slate-100 text-slate-700",
-  inactive: "bg-slate-50 text-slate-400 border border-slate-200",
-  suspended: "bg-slate-50 text-slate-400 border border-slate-200",
+  active: "bg-emerald-100 text-emerald-700",
+  inactive: "bg-slate-100 text-slate-400",
+  suspended: "bg-amber-100 text-amber-600",
 };
 
 function formatDate(iso: string) {
@@ -61,24 +53,24 @@ function ConfirmDialog({
   loading: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
-            <AlertTriangle className="h-4 w-4 text-slate-700" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50 border border-amber-200">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-950">{title}</p>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{message}</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500">{message}</p>
           </div>
         </div>
-        <div className="mt-5 flex justify-end gap-3">
+        <div className="mt-5 flex justify-end gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={onCancel}
             disabled={loading}
-            className="rounded-full border-slate-200"
+            className="rounded-lg border-slate-200"
           >
             Cancel
           </Button>
@@ -86,7 +78,7 @@ function ConfirmDialog({
             size="sm"
             onClick={onConfirm}
             disabled={loading}
-            className="rounded-full bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-60"
+            className="rounded-lg bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-60"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -119,13 +111,19 @@ function PasswordDialog({
 }) {
   const [pw, setPw] = useState("");
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-        <p className="text-sm font-semibold text-slate-950">Reset password</p>
-        <p className="mt-1 text-sm text-slate-600">
-          New password for <strong>{userName}</strong>. All their sessions will
-          be revoked.
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
+            <KeyRound className="h-4 w-4 text-slate-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-950">Reset password</p>
+            <p className="mt-1 text-sm text-slate-500">
+              New password for <span className="font-medium text-slate-800">{userName}</span>. All sessions will be revoked.
+            </p>
+          </div>
+        </div>
         <Input
           type="password"
           placeholder="Min 8 characters"
@@ -134,14 +132,16 @@ function PasswordDialog({
           className="mt-4 h-10 rounded-lg border-slate-200 text-sm"
           autoFocus
         />
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-        <div className="mt-4 flex justify-end gap-3">
+        {error && (
+          <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+        )}
+        <div className="mt-4 flex justify-end gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={onCancel}
             disabled={loading}
-            className="rounded-full border-slate-200"
+            className="rounded-lg border-slate-200"
           >
             Cancel
           </Button>
@@ -149,7 +149,7 @@ function PasswordDialog({
             size="sm"
             onClick={() => onConfirm(pw)}
             disabled={loading || pw.length < 8}
-            className="rounded-full bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-60"
+            className="rounded-lg bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-60"
           >
             {loading ? "Saving…" : "Reset password"}
           </Button>
@@ -190,7 +190,6 @@ export function TenantDetailClient({
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  // Debounced user search
   const [searchInput, setSearchInput] = useState(search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -211,9 +210,7 @@ export function TenantDetailClient({
       offset: String(offset),
       ...params,
     });
-    [...sp.keys()].forEach((k) => {
-      if (!sp.get(k)) sp.delete(k);
-    });
+    [...sp.keys()].forEach((k) => { if (!sp.get(k)) sp.delete(k); });
     startTransition(() => router.push(`${pathname}?${sp.toString()}`));
   }
 
@@ -243,10 +240,7 @@ export function TenantDetailClient({
       const res = await fetch(`/api/accounts/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "reset_password",
-          new_password: newPassword,
-        }),
+        body: JSON.stringify({ action: "reset_password", new_password: newPassword }),
       });
       if (!res.ok) throw new Error("Failed to reset password.");
       setDialog(null);
@@ -290,8 +284,8 @@ export function TenantDetailClient({
         />
       )}
 
-      <div className="space-y-5">
-        {/* Back */}
+      <div className="space-y-6">
+        {/* ── Back row ── */}
         <div className="flex items-center justify-between gap-3">
           <Link
             href="/accounts"
@@ -303,54 +297,49 @@ export function TenantDetailClient({
           <RefreshButton />
         </div>
 
-        {/* Workspace card */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="border-b border-slate-100 pb-4">
+        {/* ── Workspace card ── */}
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+
+          {/* Card header */}
+          <div className="border-b border-slate-100 px-6 py-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <CardTitle className="text-xl text-slate-950">
-                    {tenant.name}
-                  </CardTitle>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${TENANT_STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-600"}`}
-                  >
+                  <h1 className="text-xl font-semibold text-slate-950">{tenant.name}</h1>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${TENANT_STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-500"}`}>
                     {tenant.status}
                   </span>
                   <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium capitalize text-slate-600">
                     {tenant.plan}
                   </span>
                 </div>
-                <CardDescription>
+                <p className="text-sm text-slate-500">
                   <span className="font-mono">{tenant.slug}</span>
-                  {" · "}
-                  {tenant.country_code}
+                  {" · "}{tenant.country_code}
                   {" · "}Created {formatDate(tenant.created_at)}
-                </CardDescription>
+                </p>
                 {tenant.trial_ends_at && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-400">
                     Trial ends: {formatDate(tenant.trial_ends_at)}
                   </p>
                 )}
               </div>
 
-              {/* Only activate / deactivate — no suspend */}
-              <div className="flex shrink-0 gap-2">
+              <div className="shrink-0">
                 {isActive ? (
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setDialog({ type: "tenant_deactivate" })}
-                    className="h-8 rounded-full border-slate-200 text-xs"
+                    className="h-8 rounded-lg border-slate-200 text-xs"
                   >
                     Deactivate workspace
                   </Button>
                 ) : (
                   <Button
                     size="sm"
-                    variant="outline"
                     onClick={() => setDialog({ type: "tenant_activate" })}
-                    className="h-8 rounded-full border-slate-200 text-xs"
+                    className="h-8 rounded-lg bg-slate-950 text-xs text-white hover:bg-slate-800"
                   >
                     Activate workspace
                   </Button>
@@ -359,138 +348,124 @@ export function TenantDetailClient({
             </div>
 
             {!isActive && (
-              <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5">
-                <p className="text-xs text-slate-600">
+              <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5">
+                <p className="text-xs text-amber-800">
                   <span className="font-semibold">Workspace is inactive.</span>{" "}
                   Users cannot log in until this workspace is reactivated.
                 </p>
               </div>
             )}
-          </CardHeader>
+          </div>
 
-          {/* Users */}
-          <CardContent className="p-0">
-            <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-              <p className="text-sm font-semibold text-slate-950">
-                Users{" "}
-                <span className="font-normal text-slate-500">({total})</span>
-              </p>
-              <div className="relative sm:w-56">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={searchInput}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Search users…"
-                  className="h-8 rounded-lg border-slate-200 pl-9 text-sm"
-                />
-              </div>
+          {/* Users section header */}
+          <div className="flex flex-col gap-3 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-semibold text-slate-950">
+              Users{" "}
+              <span className="font-normal text-slate-400">({total})</span>
+            </p>
+            <div className="relative sm:w-56">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={searchInput}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder="Search users…"
+                className="h-8 rounded-lg border-slate-200 pl-9 text-sm"
+              />
             </div>
+          </div>
 
-            <Separator />
-
-            {users.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-12 text-center">
-                <User className="h-7 w-7 text-slate-300" />
-                <p className="text-sm text-slate-500">No users found.</p>
-              </div>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {users.map((user) => {
-                  const displayName =
-                    [user.first_name, user.last_name]
-                      .filter(Boolean)
-                      .join(" ") || user.email;
-                  return (
-                    <li
-                      key={user.id}
-                      className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
-                          {displayName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <p className="truncate text-sm font-medium text-slate-950">
-                              {displayName}
-                            </p>
-                            <Badge
-                              className={`border-0 text-xs ${USER_STATUS_PILL[user.status] ?? "bg-slate-100 text-slate-600"}`}
-                            >
-                              {user.status}
-                            </Badge>
-                            <span className="rounded border border-slate-200 px-1.5 py-0.5 text-xs capitalize text-slate-500">
-                              {user.role}
-                            </span>
-                          </div>
-                          <p className="mt-0.5 truncate text-xs text-slate-500">
-                            {user.email}
-                          </p>
-                        </div>
+          {/* User list */}
+          {users.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-12 text-center">
+              <User className="h-7 w-7 text-slate-300" />
+              <p className="text-sm text-slate-500">No users found.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {users.map((user) => {
+                const displayName =
+                  [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+                  user.email;
+                return (
+                  <li
+                    key={user.id}
+                    className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      {/* Avatar */}
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
+                        {displayName.charAt(0).toUpperCase()}
                       </div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <p className="truncate text-sm font-medium text-slate-950">
+                            {displayName}
+                          </p>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${USER_STATUS_PILL[user.status] ?? "bg-slate-100 text-slate-500"}`}>
+                            {user.status}
+                          </span>
+                          <span className="rounded-md border border-slate-200 px-1.5 py-0.5 text-xs capitalize text-slate-500">
+                            {user.role}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 truncate text-xs text-slate-400">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
 
-                      {/* Only password reset — no deactivate on users */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          setDialog({
-                            type: "user_password",
-                            userId: user.id,
-                            userName: displayName,
-                          })
-                        }
-                        className="h-7 shrink-0 rounded-full border-slate-200 px-3 text-xs"
-                      >
-                        Reset password
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
-            {total > limit && (
-              <>
-                <Separator />
-                <div className="flex items-center justify-between px-5 py-3">
-                  <p className="text-xs text-slate-500">
-                    {offset + 1}–{Math.min(offset + limit, total)} of {total}
-                  </p>
-                  <div className="flex items-center gap-2">
                     <Button
-                      variant="outline"
                       size="sm"
-                      disabled={offset === 0 || isPending}
+                      variant="outline"
                       onClick={() =>
-                        navigate({
-                          offset: String(Math.max(0, offset - limit)),
+                        setDialog({
+                          type: "user_password",
+                          userId: user.id,
+                          userName: displayName,
                         })
                       }
-                      className="h-8 rounded-lg border-slate-200 px-2"
+                      className="h-7 shrink-0 rounded-lg border-slate-200 px-3 text-xs"
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      Reset password
                     </Button>
-                    <span className="text-xs text-slate-600">
-                      {currentPage} / {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={offset + limit >= total || isPending}
-                      onClick={() =>
-                        navigate({ offset: String(offset + limit) })
-                      }
-                      className="h-8 rounded-lg border-slate-200 px-2"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {/* Pagination */}
+          {total > limit && (
+            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3">
+              <p className="text-xs text-slate-500">
+                {offset + 1}–{Math.min(offset + limit, total)} of {total}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset === 0 || isPending}
+                  onClick={() => navigate({ offset: String(Math.max(0, offset - limit)) })}
+                  className="h-8 w-8 rounded-lg border-slate-200 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="min-w-[3rem] text-center text-xs text-slate-600">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset + limit >= total || isPending}
+                  onClick={() => navigate({ offset: String(offset + limit) })}
+                  className="h-8 w-8 rounded-lg border-slate-200 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

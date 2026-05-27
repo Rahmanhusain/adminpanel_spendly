@@ -2,11 +2,9 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 import {
   Search,
   Mail,
@@ -35,6 +33,10 @@ function formatDate(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />;
 }
 
 export function InboxClient({
@@ -81,20 +83,20 @@ export function InboxClient({
   }
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* ── Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
             Inbox
           </h1>
-          <p className="mt-0.5 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500">
             Emails received at support@spendly.software via Resend webhook.
           </p>
         </div>
         <div className="flex items-center gap-2">
           {unreadCount > 0 && (
-            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700">
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm">
               {unreadCount} unread
             </span>
           )}
@@ -102,9 +104,9 @@ export function InboxClient({
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-48">
+      {/* ── Filters ── */}
+      <div className="flex flex-wrap gap-2.5">
+        <div className="relative min-w-48 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
             defaultValue={search}
@@ -123,7 +125,7 @@ export function InboxClient({
         <select
           value={isReadFilter}
           onChange={(e) => navigate({ isRead: e.target.value, offset: "0" })}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-950"
+          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
         >
           <option value="">All emails</option>
           <option value="false">Unread</option>
@@ -131,44 +133,71 @@ export function InboxClient({
         </select>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_420px]">
-        {/* Email list */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardContent className="p-0">
-            {rows.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-16 text-center">
-                <MailOpen className="h-8 w-8 text-slate-300" />
-                <p className="text-sm text-slate-500">No emails found.</p>
-              </div>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {rows.map((email) => (
+      {/* ── Two-column layout ── */}
+      <div className="grid items-start gap-4 lg:grid-cols-[1fr_420px]">
+
+        {/* ── Email list panel ── */}
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          {isPending ? (
+            <ul className="divide-y divide-slate-100">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <li key={i} className="flex items-start gap-3 px-5 py-4">
+                  <Skeleton className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-40" />
+                    <Skeleton className="h-3 w-64" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                  <Skeleton className="h-3 w-20 shrink-0" />
+                </li>
+              ))}
+            </ul>
+          ) : rows.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-16 text-center">
+              <MailOpen className="h-8 w-8 text-slate-300" />
+              <p className="text-sm text-slate-500">No emails found.</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {rows.map((email) => {
+                const isSelected = selected?.id === email.id;
+                return (
                   <li key={email.id}>
                     <button
                       onClick={() => handleMarkRead(email)}
                       disabled={markingRead === email.id}
-                      className={`w-full px-5 py-4 text-left transition-colors hover:bg-slate-50 ${
-                        selected?.id === email.id ? "bg-slate-50" : ""
-                      }`}
+                      className={[
+                        "w-full border-l-2 px-5 py-4 text-left transition-all disabled:opacity-60",
+                        isSelected
+                          ? "border-l-slate-950 bg-slate-50"
+                          : "border-l-transparent hover:bg-slate-50",
+                      ].join(" ")}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex min-w-0 items-start gap-3">
+                          {/* Icon */}
                           <div className="mt-0.5 shrink-0">
-                            {email.is_read ? (
+                            {markingRead === email.id ? (
+                              <span className="flex h-4 w-4 items-center justify-center">
+                                <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
+                              </span>
+                            ) : email.is_read ? (
                               <MailOpen className="h-4 w-4 text-slate-400" />
                             ) : (
                               <Mail className="h-4 w-4 text-slate-950" />
                             )}
                           </div>
+
+                          {/* Text */}
                           <div className="min-w-0">
-                            <p
-                              className={`truncate text-sm ${email.is_read ? "text-slate-600" : "font-semibold text-slate-950"}`}
-                            >
+                            <p className={`truncate text-sm ${
+                              email.is_read ? "text-slate-500" : "font-semibold text-slate-950"
+                            }`}>
                               {email.from_address}
                             </p>
-                            <p
-                              className={`mt-0.5 truncate text-sm ${email.is_read ? "text-slate-500" : "text-slate-700"}`}
-                            >
+                            <p className={`mt-0.5 truncate text-sm ${
+                              email.is_read ? "text-slate-400" : "text-slate-700"
+                            }`}>
                               {email.subject}
                             </p>
                             {email.text_body && (
@@ -178,102 +207,119 @@ export function InboxClient({
                             )}
                           </div>
                         </div>
-                        <p className="shrink-0 text-xs text-slate-400">
-                          {formatDate(email.created_at)}
-                        </p>
+
+                        {/* Right side */}
+                        <div className="flex shrink-0 flex-col items-end gap-1.5">
+                          <p className="text-xs text-slate-400">
+                            {formatDate(email.created_at)}
+                          </p>
+                          {!email.is_read && (
+                            <span className="h-2 w-2 rounded-full bg-slate-950" />
+                          )}
+                        </div>
                       </div>
                     </button>
                   </li>
-                ))}
-              </ul>
-            )}
+                );
+              })}
+            </ul>
+          )}
 
-            {/* Pagination */}
-            {total > limit && (
-              <>
-                <Separator />
-                <div className="flex items-center justify-between px-5 py-3">
-                  <p className="text-xs text-slate-500">
-                    {offset + 1}–{Math.min(offset + limit, total)} of {total}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={offset === 0 || isPending}
-                      onClick={() =>
-                        navigate({
-                          offset: String(Math.max(0, offset - limit)),
-                        })
-                      }
-                      className="h-8 rounded-lg border-slate-200 px-2"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="flex h-8 items-center px-2 text-xs text-slate-600">
-                      {currentPage} / {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={offset + limit >= total || isPending}
-                      onClick={() =>
-                        navigate({ offset: String(offset + limit) })
-                      }
-                      className="h-8 rounded-lg border-slate-200 px-2"
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Email detail */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardContent className="p-0">
-            {!selected ? (
-              <div className="flex flex-col items-center gap-2 py-16 text-center">
-                <Mail className="h-8 w-8 text-slate-300" />
-                <p className="text-sm text-slate-500">
-                  Select an email to read it.
-                </p>
+          {/* Pagination */}
+          {total > limit && (
+            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
+              <p className="text-xs text-slate-500">
+                {offset + 1}–{Math.min(offset + limit, total)} of {total}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset === 0 || isPending}
+                  onClick={() =>
+                    navigate({ offset: String(Math.max(0, offset - limit)) })
+                  }
+                  className="h-8 w-8 rounded-lg border-slate-200 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="min-w-[3rem] text-center text-xs text-slate-600">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset + limit >= total || isPending}
+                  onClick={() => navigate({ offset: String(offset + limit) })}
+                  className="h-8 w-8 rounded-lg border-slate-200 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
-            ) : (
-              <div className="p-5 space-y-4">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-base font-semibold text-slate-950 leading-snug">
-                      {selected.subject}
-                    </p>
-                    {!selected.is_read && (
-                      <Badge className="shrink-0 border-slate-200 bg-slate-50 text-slate-700 text-xs">
-                        Unread
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    <span className="font-medium">From:</span>{" "}
-                    {selected.from_address}
+            </div>
+          )}
+        </div>
+
+        {/* ── Email detail panel ── */}
+        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          {!selected ? (
+            <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
+                <Mail className="h-5 w-5 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-700">No email selected</p>
+                <p className="mt-0.5 text-xs text-slate-400">Click an email from the list to read it.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col divide-y divide-slate-100">
+              {/* Meta section */}
+              <div className="space-y-3 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-base font-semibold leading-snug text-slate-950">
+                    {selected.subject}
                   </p>
-                  <p className="text-sm text-slate-600">
-                    <span className="font-medium">To:</span>{" "}
-                    {selected.to_address}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {formatDate(selected.created_at)}
-                  </p>
+                  {!selected.is_read && (
+                    <Badge className="shrink-0 border-slate-200 bg-slate-50 text-xs text-slate-600">
+                      Unread
+                    </Badge>
+                  )}
                 </div>
-                <Separator />
-                <div className="text-sm leading-7 text-slate-700 whitespace-pre-wrap">
+
+                <div className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3 space-y-1.5 text-sm">
+                  <div className="flex items-baseline gap-2">
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">From</span>
+                    <a
+                      href={`mailto:${selected.from_address}`}
+                      className="truncate text-slate-800 underline-offset-4 hover:underline"
+                    >
+                      {selected.from_address}
+                    </a>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">To</span>
+                    <span className="truncate text-slate-600">{selected.to_address}</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">Date</span>
+                    <span className="text-slate-500 text-xs">{formatDate(selected.created_at)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Body section */}
+              <div className="p-5">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                  Message
+                </p>
+                <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
                   {selected.text_body ?? selected.html_body ?? "(No body)"}
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
