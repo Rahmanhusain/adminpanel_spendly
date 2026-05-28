@@ -123,17 +123,20 @@ export function InquiriesClient({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isComposeDialogOpen, setIsComposeDialogOpen] = useState(false);
 
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (isComposeDialogOpen) return;
+
     const interval = setInterval(() => {
       router.refresh();
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, [router, isComposeDialogOpen]);
 
   function handleSearchChange(value: string) {
     setSearchInput(value);
@@ -367,22 +370,19 @@ export function InquiriesClient({
               </div>
               <div className="pt-1">
                 <EmailComposeDialog
-                  kind="reply"
-                  triggerLabel="Reply to sender"
-                  title="Reply to inquiry"
-                  description="Send a formatted HTML reply to the inquiry sender."
+                  kind="compose"
+                  triggerLabel="Compose email"
+                  title="Compose email to sender"
+                  description="Send a formatted HTML email to the inquiry sender."
                   source="inquiries"
                   initialTo={selected.sender_email}
-                  initialSubject={
-                    selected.subject.startsWith("Re:")
-                      ? selected.subject
-                      : `Re: ${selected.subject}`
-                  }
+                  initialSubject={selected.subject}
                   recipientName={selected.sender_name || undefined}
                   relatedId={selected.id}
                   relatedSubject={selected.subject}
                   triggerClassName="h-8 rounded-lg border-slate-200 bg-white text-xs"
                   buttonSize="sm"
+                  onOpenChange={setIsComposeDialogOpen}
                 />
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -501,6 +501,7 @@ export function InquiriesClient({
             source="inquiries"
             triggerClassName="h-9 rounded-lg border-slate-200 bg-white text-sm"
             buttonSize="sm"
+            onOpenChange={setIsComposeDialogOpen}
           />
           <RefreshButton />
         </div>

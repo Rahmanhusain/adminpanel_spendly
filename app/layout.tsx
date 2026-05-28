@@ -27,6 +27,7 @@ export default function AdminRootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      scroll-behavior="smooth"
     >
       <body>{children}</body>
     </html>

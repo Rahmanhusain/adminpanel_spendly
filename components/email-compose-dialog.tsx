@@ -24,6 +24,7 @@ interface EmailComposeDialogProps {
   triggerClassName?: string;
   buttonSize?: "sm" | "default";
   buttonVariant?: "default" | "outline";
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function EmailComposeDialog({
@@ -40,6 +41,7 @@ export function EmailComposeDialog({
   triggerClassName = "",
   buttonSize = "sm",
   buttonVariant = "outline",
+  onOpenChange,
 }: EmailComposeDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -58,6 +60,11 @@ export function EmailComposeDialog({
     setError(null);
     setSuccess(false);
   }, [open, initialTo, initialSubject]);
+
+  function setDialogOpen(nextOpen: boolean) {
+    setOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  }
 
   async function handleSend() {
     setSending(true);
@@ -99,7 +106,7 @@ export function EmailComposeDialog({
         type="button"
         variant={buttonVariant}
         size={buttonSize}
-        onClick={() => setOpen(true)}
+        onClick={() => setDialogOpen(true)}
         className={triggerClassName}
       >
         <Send className="mr-1.5 h-3.5 w-3.5" />
@@ -118,7 +125,7 @@ export function EmailComposeDialog({
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => setDialogOpen(false)}
                 className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
               >
                 <X className="h-4 w-4" />
@@ -205,7 +212,7 @@ export function EmailComposeDialog({
                 <Button
                   type="button"
                   size="sm"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setDialogOpen(false)}
                   className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
                 >
                   Done
@@ -216,7 +223,7 @@ export function EmailComposeDialog({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setOpen(false)}
+                    onClick={() => setDialogOpen(false)}
                     className="rounded-lg border-slate-200"
                   >
                     Cancel
