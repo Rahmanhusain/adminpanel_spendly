@@ -56,6 +56,7 @@ export function InboxClient({
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<InboundEmailRecord | null>(null);
   const [markingRead, setMarkingRead] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState(search);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,6 +65,20 @@ export function InboxClient({
 
     return () => clearInterval(interval);
   }, [router]);
+
+  useEffect(() => {
+    setSearchTerm(search);
+  }, [search]);
+
+  useEffect(() => {
+    if (searchTerm === search) return;
+
+    const timeout = window.setTimeout(() => {
+      navigate({ search: searchTerm, offset: "0" });
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [searchTerm, search, isReadFilter, offset]);
 
   const totalPages = Math.ceil(total / limit);
   const currentPage = Math.floor(offset / limit) + 1;
@@ -129,17 +144,10 @@ export function InboxClient({
         <div className="relative min-w-48 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
-            defaultValue={search}
+            value={searchTerm}
             placeholder="Search sender or subject…"
             className="h-9 rounded-lg border-slate-200 pl-9 text-sm"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                navigate({
-                  search: (e.target as HTMLInputElement).value,
-                  offset: "0",
-                });
-              }
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <select
