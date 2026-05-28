@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState, useTransition, useRef } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { EmailComposeDialog } from "./email-compose-dialog";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import {
@@ -255,7 +256,6 @@ export function InquiriesClient({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      {/* Badges */}
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_PILL[inq.status]}`}
@@ -266,17 +266,14 @@ export function InquiriesClient({
                           {REASON_LABELS[inq.reason] ?? inq.reason}
                         </span>
                       </div>
-                      {/* Subject */}
                       <p className="mt-2 truncate text-sm font-medium text-slate-950">
                         {inq.subject}
                       </p>
-                      {/* Sender */}
                       <p className="mt-0.5 truncate text-xs text-slate-500">
                         {inq.sender_name ? `${inq.sender_name} · ` : ""}
                         {inq.sender_email}
                       </p>
                     </div>
-                    {/* Date */}
                     <p className="shrink-0 text-xs tabular-nums text-slate-400">
                       {formatDate(inq.created_at)}
                     </p>
@@ -288,7 +285,6 @@ export function InquiriesClient({
         </ul>
       )}
 
-      {/* Pagination */}
       {total > limit && (
         <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
           <p className="text-xs text-slate-500">
@@ -368,6 +364,26 @@ export function InquiriesClient({
                   {selected.sender_email}
                 </a>
                 <CopyEmailButton email={selected.sender_email} />
+              </div>
+              <div className="pt-1">
+                <EmailComposeDialog
+                  kind="reply"
+                  triggerLabel="Reply to sender"
+                  title="Reply to inquiry"
+                  description="Send a formatted HTML reply to the inquiry sender."
+                  source="inquiries"
+                  initialTo={selected.sender_email}
+                  initialSubject={
+                    selected.subject.startsWith("Re:")
+                      ? selected.subject
+                      : `Re: ${selected.subject}`
+                  }
+                  recipientName={selected.sender_name || undefined}
+                  relatedId={selected.id}
+                  relatedSubject={selected.subject}
+                  triggerClassName="h-8 rounded-lg border-slate-200 bg-white text-xs"
+                  buttonSize="sm"
+                />
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <Calendar className="h-3.5 w-3.5 shrink-0 text-slate-400" />
@@ -476,7 +492,18 @@ export function InquiriesClient({
             Contact form submissions — {total} total.
           </p>
         </div>
-        <RefreshButton />
+        <div className="flex items-center gap-2">
+          <EmailComposeDialog
+            kind="compose"
+            triggerLabel="Compose email"
+            title="Compose email"
+            description="Send a new responsive HTML email from the Spendly admin panel."
+            source="inquiries"
+            triggerClassName="h-9 rounded-lg border-slate-200 bg-white text-sm"
+            buttonSize="sm"
+          />
+          <RefreshButton />
+        </div>
       </div>
 
       {/* ── Filters ── */}

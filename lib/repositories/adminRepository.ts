@@ -172,7 +172,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       query<{ total: string; unread: string }>(
         `SELECT COUNT(*)::text AS total,
               COUNT(*) FILTER (WHERE is_read = FALSE)::text AS unread
-         FROM inbound_emails`,
+        FROM inbound_emails
+        WHERE direction = 'inbound'`,
       ),
       query<{ total: string; active_count: string }>(
         `SELECT COUNT(*)::text AS total,
@@ -361,7 +362,7 @@ export async function listInboundEmails(opts: EmailListOptions = {}): Promise<{
 }> {
   const limit = Math.min(opts.limit ?? 20, 100);
   const offset = opts.offset ?? 0;
-  const conditions: string[] = [];
+  const conditions: string[] = ["direction = 'inbound'"];
   const values: unknown[] = [];
   let idx = 1;
 
@@ -384,7 +385,7 @@ export async function listInboundEmails(opts: EmailListOptions = {}): Promise<{
       values,
     ),
     query<{ count: string }>(
-      `SELECT COUNT(*)::text AS count FROM inbound_emails WHERE is_read = FALSE`,
+      `SELECT COUNT(*)::text AS count FROM inbound_emails WHERE direction = 'inbound' AND is_read = FALSE`,
       [],
     ),
     query<InboundEmailRecord>(
@@ -409,7 +410,7 @@ export async function markEmailRead(
   await query(
     `UPDATE inbound_emails
      SET is_read = TRUE, read_at = NOW(), read_by = $1
-     WHERE id = $2 AND is_read = FALSE`,
+     WHERE id = $2 AND is_read = FALSE AND direction = 'inbound'`,
     [adminId, id],
   );
 }

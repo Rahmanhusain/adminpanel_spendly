@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>We received your message - {{appName}}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f7f7f7;
+        color: #111111;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      a {
+        color: #111111;
+      }
+
+      .wrapper {
+        width: 100%;
+        padding: 32px 16px;
+        box-sizing: border-box;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #d4d4d8;
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.04),
+          0 10px 28px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+      }
+
+      .masthead {
+        padding: 20px 28px;
+        background: linear-gradient(to bottom, #ffffff, #fbfbfb);
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .brand {
+        display: inline-block;
+        padding: 6px 10px;
+        background: #111111;
+        color: #ffffff;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .section {
+        padding: 32px 28px;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        font-weight: 700;
+      }
+
+      .lead,
+      .copy p {
+        color: #2f2f2f;
+        line-height: 1.75;
+      }
+
+      .lead {
+        margin: 12px 0 0;
+        font-size: 16px;
+        color: #3f3f46;
+      }
+
+      .copy p {
+        margin: 0 0 16px;
+        font-size: 15px;
+      }
+
+      .panel {
+        margin-top: 24px;
+        border: 1px solid #e4e4e7;
+        background: #fafafa;
+        border-radius: 14px;
+        overflow: hidden;
+      }
+
+      .detail-row {
+        width: 100%;
+        border-top: 1px solid #e4e4e7;
+      }
+
+      .detail-row:first-child {
+        border-top: 0;
+      }
+
+      .label,
+      .value {
+        padding: 14px 16px;
+        vertical-align: top;
+      }
+
+      .label {
+        width: 140px;
+        font-size: 12px;
+        line-height: 1.4;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #52525b;
+      }
+
+      .value {
+        font-size: 14px;
+        line-height: 1.7;
+        font-weight: 600;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+
+      .note {
+        margin-top: 24px;
+        padding: 16px;
+        border: 1px solid #e4e4e7;
+        background: #fafafa;
+        border-radius: 14px;
+      }
+
+      .note-title {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .note-text {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.7;
+        color: #3f3f46;
+      }
+
+      .footer {
+        padding: 20px 28px;
+        font-size: 12px;
+        line-height: 1.6;
+        background: #fafafa;
+        color: #52525b;
+        border-top: 1px solid #e4e4e7;
+      }
+
+      .footer-brand {
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #111111;
+      }
+
+      @media only screen and (max-width: 600px) {
+        .wrapper {
+          padding: 16px 10px;
+        }
+        .masthead,
+        .section,
+        .footer {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        .label,
+        .value {
+          display: block;
+          width: auto;
+        }
+        .label {
+          padding-bottom: 6px;
+        }
+        .value {
+          padding-top: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="masthead">
+          <div class="brand">{{appName}}</div>
+        </div>
+
+        <div class="section">
+          <h1>We received your message</h1>
+          <p class="lead">
+            Thanks for reaching out. Our team will review your message and get
+            back to you shortly.
+          </p>
+        </div>
+
+        <div class="section copy">
+          <p>Hi {{senderName}},</p>
+          <p>
+            We have successfully received your message and our support team will
+            respond within one business day (Mon - Fri, 10 AM - 6 PM IST).
+          </p>
+
+          <table
+            class="panel"
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+          >
+            <tr class="detail-row">
+              <td class="label">Reason</td>
+              <td class="value">{{reasonLabel}}</td>
+            </tr>
+            <tr class="detail-row">
+              <td class="label">Subject</td>
+              <td class="value">{{subject}}</td>
+            </tr>
+          </table>
+
+          <div class="note">
+            <p class="note-title">Need to add more details?</p>
+            <p class="note-text">
+              Reply to this email or contact us directly at
+              <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> and we will
+              continue the conversation there.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="footer-brand">{{appName}}</div>
+          <div>
+            This is an automated confirmation email. Please do not reply
+            directly to this message.
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

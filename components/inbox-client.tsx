@@ -5,6 +5,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { EmailComposeDialog } from "./email-compose-dialog";
 import {
   Search,
   Mail,
@@ -105,6 +106,15 @@ export function InboxClient({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <EmailComposeDialog
+            kind="compose"
+            triggerLabel="Compose email"
+            title="Compose email"
+            description="Send a new responsive HTML email from the Spendly admin panel."
+            source="inbox"
+            triggerClassName="h-9 rounded-lg border-slate-200 bg-white text-sm"
+            buttonSize="sm"
+          />
           {unreadCount > 0 && (
             <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm">
               {unreadCount} unread
@@ -302,11 +312,30 @@ export function InboxClient({
                   <p className="text-base font-semibold leading-snug text-slate-950">
                     {selected.subject}
                   </p>
-                  {!selected.is_read && (
-                    <Badge className="shrink-0 border-slate-200 bg-slate-50 text-xs text-slate-600">
-                      Unread
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <EmailComposeDialog
+                      kind="reply"
+                      triggerLabel="Reply"
+                      title="Reply to email"
+                      description="Send a formatted HTML reply to the selected email address."
+                      source="inbox"
+                      initialTo={selected.from_address}
+                      initialSubject={
+                        selected.subject.startsWith("Re:")
+                          ? selected.subject
+                          : `Re: ${selected.subject}`
+                      }
+                      relatedId={selected.id}
+                      relatedSubject={selected.subject}
+                      triggerClassName="h-8 rounded-lg border-slate-200 bg-white text-xs"
+                      buttonSize="sm"
+                    />
+                    {!selected.is_read && (
+                      <Badge className="shrink-0 border-slate-200 bg-slate-50 text-xs text-slate-600">
+                        Unread
+                      </Badge>
+                    )}
+                  </div>
                 </div>
 
                 <div className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3 space-y-1.5 text-sm">
