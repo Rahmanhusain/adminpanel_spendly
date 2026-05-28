@@ -371,7 +371,9 @@ export async function listInboundEmails(opts: EmailListOptions = {}): Promise<{
     values.push(opts.isRead);
   }
   if (opts.search) {
-    conditions.push(`(from_address ILIKE $${idx} OR subject ILIKE $${idx})`);
+    conditions.push(
+      `(from_address ILIKE $${idx} OR to_address ILIKE $${idx} OR subject ILIKE $${idx} OR text_body ILIKE $${idx} OR html_body ILIKE $${idx})`,
+    );
     values.push(`%${opts.search}%`);
     idx++;
   }
