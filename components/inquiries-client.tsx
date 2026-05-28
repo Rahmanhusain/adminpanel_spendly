@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useState, useTransition, useRef } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
@@ -59,7 +59,9 @@ function formatDate(iso: string) {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />;
+  return (
+    <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />
+  );
 }
 
 interface Filters {
@@ -102,7 +104,13 @@ function CopyEmailButton({ email }: { email: string }) {
   );
 }
 
-export function InquiriesClient({ rows, total, offset, limit, filters }: Props) {
+export function InquiriesClient({
+  rows,
+  total,
+  offset,
+  limit,
+  filters,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -117,6 +125,14 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
 
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   function handleSearchChange(value: string) {
     setSearchInput(value);
@@ -138,7 +154,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
       ...overrides,
     };
     const sp = new URLSearchParams();
-    Object.entries(merged).forEach(([k, v]) => { if (v) sp.set(k, v); });
+    Object.entries(merged).forEach(([k, v]) => {
+      if (v) sp.set(k, v);
+    });
     startTransition(() => router.push(`${pathname}?${sp.toString()}`));
   }
 
@@ -164,7 +182,11 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error?.message ?? "Failed to update.");
-      setSelected({ ...selected, status: editStatus as InquiryStatus, admin_notes: editNotes });
+      setSelected({
+        ...selected,
+        status: editStatus as InquiryStatus,
+        admin_notes: editNotes,
+      });
       setSaveSuccess(true);
       startTransition(() => router.refresh());
     } catch (err) {
@@ -180,9 +202,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
 
   // ── List panel ──────────────────────────────────────────────────────────────
   const ListPanel = () => (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {isPending ? (
-        <ul className="divide-y divide-slate-100">
+        <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
           {Array.from({ length: 6 }).map((_, i) => (
             <li key={i} className="space-y-2.5 px-5 py-4">
               <div className="flex items-center gap-2">
@@ -195,12 +217,21 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
           ))}
         </ul>
       ) : rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-16 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-16 text-center">
           <MessageSquare className="h-8 w-8 text-slate-300" />
           <p className="text-sm text-slate-500">No inquiries found.</p>
           {hasFilters && (
             <button
-              onClick={() => navigate({ search: "", status: "", reason: "", dateFrom: "", dateTo: "", offset: "0" })}
+              onClick={() =>
+                navigate({
+                  search: "",
+                  status: "",
+                  reason: "",
+                  dateFrom: "",
+                  dateTo: "",
+                  offset: "0",
+                })
+              }
               className="mt-1 text-xs text-slate-950 underline-offset-4 hover:underline"
             >
               Clear filters
@@ -208,7 +239,7 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
           {rows.map((inq) => {
             const isSelected = selected?.id === inq.id;
             return (
@@ -226,7 +257,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
                     <div className="min-w-0 flex-1">
                       {/* Badges */}
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_PILL[inq.status]}`}>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_PILL[inq.status]}`}
+                        >
                           {STATUS_LABELS[inq.status]}
                         </span>
                         <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
@@ -266,12 +299,14 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
               variant="outline"
               size="sm"
               disabled={offset === 0 || isPending}
-              onClick={() => navigate({ offset: String(Math.max(0, offset - limit)) })}
+              onClick={() =>
+                navigate({ offset: String(Math.max(0, offset - limit)) })
+              }
               className="h-8 w-8 rounded-lg border-slate-200 p-0"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="min-w-[3rem] text-center text-xs text-slate-600">
+            <span className="min-w-12 text-center text-xs text-slate-600">
               {currentPage} / {totalPages}
             </span>
             <Button
@@ -291,23 +326,29 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
 
   // ── Detail panel ────────────────────────────────────────────────────────────
   const DetailPanel = () => (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       {!selected ? (
-        <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
             <MessageSquare className="h-5 w-5 text-slate-400" />
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-700">No inquiry selected</p>
-            <p className="mt-0.5 text-xs text-slate-400">Click an inquiry from the list to review it.</p>
+            <p className="text-sm font-medium text-slate-700">
+              No inquiry selected
+            </p>
+            <p className="mt-0.5 text-xs text-slate-400">
+              Click an inquiry from the list to review it.
+            </p>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col divide-y divide-slate-100">
+        <div className="flex min-h-0 flex-1 flex-col divide-y divide-slate-100">
           {/* Header */}
           <div className="space-y-3 p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_PILL[selected.status]}`}>
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_PILL[selected.status]}`}
+              >
                 {STATUS_LABELS[selected.status]}
               </span>
               <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-600">
@@ -340,7 +381,7 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
           </div>
 
           {/* Message */}
-          <div className="p-5">
+          <div className="min-h-0 flex-1 overflow-y-auto p-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
               Message
             </p>
@@ -356,14 +397,21 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
             </p>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-600">Status</Label>
+              <Label className="text-xs font-medium text-slate-600">
+                Status
+              </Label>
               <select
                 value={editStatus}
-                onChange={(e) => { setEditStatus(e.target.value as InquiryStatus); setSaveSuccess(false); }}
+                onChange={(e) => {
+                  setEditStatus(e.target.value as InquiryStatus);
+                  setSaveSuccess(false);
+                }}
                 className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-950"
               >
                 {Object.entries(STATUS_LABELS).map(([v, l]) => (
-                  <option key={v} value={v}>{l}</option>
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
                 ))}
               </select>
             </div>
@@ -375,15 +423,26 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
               </Label>
               <Textarea
                 value={editNotes}
-                onChange={(e) => { setEditNotes(e.target.value); setSaveSuccess(false); }}
+                onChange={(e) => {
+                  setEditNotes(e.target.value);
+                  setSaveSuccess(false);
+                }}
                 placeholder="Internal notes…"
                 rows={3}
                 className="resize-none rounded-lg border-slate-200 text-sm"
               />
             </div>
 
-            {saveError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{saveError}</p>}
-            {saveSuccess && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Changes saved.</p>}
+            {saveError && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                {saveError}
+              </p>
+            )}
+            {saveSuccess && (
+              <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                Changes saved.
+              </p>
+            )}
 
             <Button
               onClick={handleSave}
@@ -406,7 +465,7 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full min-h-0 flex-col gap-6">
       {/* ── Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -439,7 +498,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
         >
           <option value="">All statuses</option>
           {Object.entries(STATUS_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
+            <option key={v} value={v}>
+              {l}
+            </option>
           ))}
         </select>
 
@@ -450,7 +511,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
         >
           <option value="">All reasons</option>
           {Object.entries(REASON_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
+            <option key={v} value={v}>
+              {l}
+            </option>
           ))}
         </select>
 
@@ -458,7 +521,9 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
           <input
             type="date"
             value={filters.dateFrom}
-            onChange={(e) => navigate({ dateFrom: e.target.value, offset: "0" })}
+            onChange={(e) =>
+              navigate({ dateFrom: e.target.value, offset: "0" })
+            }
             title="From date"
             className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
           />
@@ -475,7 +540,16 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate({ search: "", status: "", reason: "", dateFrom: "", dateTo: "", offset: "0" })}
+            onClick={() =>
+              navigate({
+                search: "",
+                status: "",
+                reason: "",
+                dateFrom: "",
+                dateTo: "",
+                offset: "0",
+              })
+            }
             className="h-9 rounded-lg border-slate-200 px-3 text-sm"
           >
             <X className="mr-1.5 h-3.5 w-3.5" />
@@ -503,7 +577,7 @@ export function InquiriesClient({ rows, total, offset, limit, filters }: Props) 
       </div>
 
       {/* ── Desktop: side-by-side ── */}
-      <div className="hidden lg:grid lg:grid-cols-[1fr_400px] lg:items-start lg:gap-4">
+      <div className="hidden min-h-0 flex-1 gap-4 lg:grid lg:grid-cols-[1fr_400px] lg:items-stretch">
         <ListPanel />
         <DetailPanel />
       </div>

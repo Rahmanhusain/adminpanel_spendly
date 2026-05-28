@@ -13,6 +13,8 @@ import {
   User,
   AlertTriangle,
   KeyRound,
+  Copy,
+  Check,
 } from "lucide-react";
 import type { TenantRecord } from "../lib/repositories/authRepository";
 import type { AdminUserRecord } from "../lib/repositories/adminRepository";
@@ -36,6 +38,33 @@ function formatDate(iso: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function CopyIdButton({ value, title }: { value: string; title: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={title}
+      className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+    >
+      {copied ? (
+        <Check className="h-3 w-3 text-emerald-600" />
+      ) : (
+        <Copy className="h-3 w-3" />
+      )}
+      <span className="text-xs">{copied ? "Copied" : "Copy"}</span>
+    </button>
+  );
 }
 
 // ── Confirm dialog ────────────────────────────────────────────────────────────
@@ -118,9 +147,13 @@ function PasswordDialog({
             <KeyRound className="h-4 w-4 text-slate-600" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-950">Reset password</p>
+            <p className="text-sm font-semibold text-slate-950">
+              Reset password
+            </p>
             <p className="mt-1 text-sm text-slate-500">
-              New password for <span className="font-medium text-slate-800">{userName}</span>. All sessions will be revoked.
+              New password for{" "}
+              <span className="font-medium text-slate-800">{userName}</span>.
+              All sessions will be revoked.
             </p>
           </div>
         </div>
@@ -133,7 +166,9 @@ function PasswordDialog({
           autoFocus
         />
         {error && (
-          <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+            {error}
+          </p>
         )}
         <div className="mt-4 flex justify-end gap-2">
           <Button
@@ -210,7 +245,9 @@ export function TenantDetailClient({
       offset: String(offset),
       ...params,
     });
-    [...sp.keys()].forEach((k) => { if (!sp.get(k)) sp.delete(k); });
+    [...sp.keys()].forEach((k) => {
+      if (!sp.get(k)) sp.delete(k);
+    });
     startTransition(() => router.push(`${pathname}?${sp.toString()}`));
   }
 
@@ -240,7 +277,10 @@ export function TenantDetailClient({
       const res = await fetch(`/api/accounts/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reset_password", new_password: newPassword }),
+        body: JSON.stringify({
+          action: "reset_password",
+          new_password: newPassword,
+        }),
       });
       if (!res.ok) throw new Error("Failed to reset password.");
       setDialog(null);
@@ -299,14 +339,17 @@ export function TenantDetailClient({
 
         {/* ── Workspace card ── */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-
           {/* Card header */}
           <div className="border-b border-slate-100 px-6 py-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl font-semibold text-slate-950">{tenant.name}</h1>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${TENANT_STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-500"}`}>
+                  <h1 className="text-xl font-semibold text-slate-950">
+                    {tenant.name}
+                  </h1>
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${TENANT_STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-500"}`}
+                  >
                     {tenant.status}
                   </span>
                   <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium capitalize text-slate-600">
@@ -315,7 +358,11 @@ export function TenantDetailClient({
                 </div>
                 <p className="text-sm text-slate-500">
                   <span className="font-mono">{tenant.slug}</span>
-                  {" · "}{tenant.country_code}
+                  {" · "}
+                  <span className="font-mono">{tenant.id}</span>
+                  <CopyIdButton value={tenant.id} title="Copy workspace ID" />
+                  {" · "}
+                  {tenant.country_code}
                   {" · "}Created {formatDate(tenant.created_at)}
                 </p>
                 {tenant.trial_ends_at && (
@@ -368,7 +415,7 @@ export function TenantDetailClient({
               <Input
                 value={searchInput}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Search users…"
+                placeholder="Search users by name, email, or id…"
                 className="h-8 rounded-lg border-slate-200 pl-9 text-sm"
               />
             </div>
@@ -401,7 +448,9 @@ export function TenantDetailClient({
                           <p className="truncate text-sm font-medium text-slate-950">
                             {displayName}
                           </p>
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${USER_STATUS_PILL[user.status] ?? "bg-slate-100 text-slate-500"}`}>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${USER_STATUS_PILL[user.status] ?? "bg-slate-100 text-slate-500"}`}
+                          >
                             {user.status}
                           </span>
                           <span className="rounded-md border border-slate-200 px-1.5 py-0.5 text-xs capitalize text-slate-500">
@@ -411,6 +460,10 @@ export function TenantDetailClient({
                         <p className="mt-0.5 truncate text-xs text-slate-400">
                           {user.email}
                         </p>
+                        <p className="mt-0.5 truncate text-xs font-mono text-slate-400">
+                          {user.id}
+                        </p>
+                        <CopyIdButton value={user.id} title="Copy user ID" />
                       </div>
                     </div>
 
@@ -445,12 +498,14 @@ export function TenantDetailClient({
                   variant="outline"
                   size="sm"
                   disabled={offset === 0 || isPending}
-                  onClick={() => navigate({ offset: String(Math.max(0, offset - limit)) })}
+                  onClick={() =>
+                    navigate({ offset: String(Math.max(0, offset - limit)) })
+                  }
                   className="h-8 w-8 rounded-lg border-slate-200 p-0"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="min-w-[3rem] text-center text-xs text-slate-600">
+                <span className="min-w-12 text-center text-xs text-slate-600">
                   {currentPage} / {totalPages}
                 </span>
                 <Button

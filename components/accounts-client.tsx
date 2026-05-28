@@ -12,6 +12,8 @@ import {
   ChevronRight,
   ArrowRight,
   Users,
+  Copy,
+  Check,
 } from "lucide-react";
 import type { TenantWithStats } from "../lib/repositories/adminRepository";
 import { RefreshButton } from "./refresh-button";
@@ -31,7 +33,36 @@ function formatDate(iso: string) {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />;
+  return (
+    <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />
+  );
+}
+
+function CopyIdButton({ value, title }: { value: string; title: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title={title}
+      className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+    >
+      {copied ? (
+        <Check className="h-3 w-3 text-emerald-600" />
+      ) : (
+        <Copy className="h-3 w-3" />
+      )}
+      <span className="text-xs">{copied ? "Copied" : "Copy"}</span>
+    </button>
+  );
 }
 
 interface Props {
@@ -76,7 +107,9 @@ export function AccountsClient({
       offset: String(offset),
       ...params,
     });
-    [...sp.keys()].forEach((k) => { if (!sp.get(k)) sp.delete(k); });
+    [...sp.keys()].forEach((k) => {
+      if (!sp.get(k)) sp.delete(k);
+    });
     startTransition(() => router.push(`${pathname}?${sp.toString()}`));
   }
 
@@ -102,7 +135,7 @@ export function AccountsClient({
           <Input
             value={searchInput}
             onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search workspace name or slug…"
+            placeholder="Search workspace name, slug, or id…"
             className="h-9 rounded-lg border-slate-200 pl-9 text-sm"
           />
         </div>
@@ -145,10 +178,10 @@ export function AccountsClient({
         ) : (
           <ul className="divide-y divide-slate-100">
             {rows.map((tenant) => (
-              <li key={tenant.id}>
+              <li key={tenant.id} className="flex items-center gap-2 px-5 py-4">
                 <Link
                   href={`/accounts/${tenant.id}`}
-                  className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-slate-50"
+                  className="flex min-w-0 flex-1 items-center gap-4 transition-colors hover:bg-slate-50"
                 >
                   {/* Avatar */}
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
@@ -161,7 +194,9 @@ export function AccountsClient({
                       <p className="text-sm font-semibold text-slate-950">
                         {tenant.name}
                       </p>
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-500"}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_PILL[tenant.status] ?? "bg-slate-100 text-slate-500"}`}
+                      >
                         {tenant.status}
                       </span>
                       <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium capitalize text-slate-600">
@@ -170,6 +205,8 @@ export function AccountsClient({
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
                       <span className="font-mono">{tenant.slug}</span>
+                      <span className="text-slate-300">·</span>
+                      <span className="font-mono">{tenant.id}</span>
                       <span className="text-slate-300">·</span>
                       <span className="inline-flex items-center gap-1">
                         <Users className="h-3 w-3" />
@@ -182,6 +219,7 @@ export function AccountsClient({
 
                   <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
                 </Link>
+                <CopyIdButton value={tenant.id} title="Copy workspace ID" />
               </li>
             ))}
           </ul>
@@ -198,12 +236,14 @@ export function AccountsClient({
                 variant="outline"
                 size="sm"
                 disabled={offset === 0 || isPending}
-                onClick={() => navigate({ offset: String(Math.max(0, offset - limit)) })}
+                onClick={() =>
+                  navigate({ offset: String(Math.max(0, offset - limit)) })
+                }
                 className="h-8 w-8 rounded-lg border-slate-200 p-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="min-w-[3rem] text-center text-xs text-slate-600">
+              <span className="min-w-12 text-center text-xs text-slate-600">
                 {currentPage} / {totalPages}
               </span>
               <Button

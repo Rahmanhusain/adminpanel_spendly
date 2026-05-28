@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -36,7 +36,9 @@ function formatDate(iso: string) {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />;
+  return (
+    <div className={`animate-pulse rounded-md bg-slate-100 ${className}`} />
+  );
 }
 
 export function InboxClient({
@@ -53,6 +55,14 @@ export function InboxClient({
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<InboundEmailRecord | null>(null);
   const [markingRead, setMarkingRead] = useState<string | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   const totalPages = Math.ceil(total / limit);
   const currentPage = Math.floor(offset / limit) + 1;
@@ -83,7 +93,7 @@ export function InboxClient({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full min-h-0 flex-col gap-6">
       {/* ── Header ── */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -134,12 +144,11 @@ export function InboxClient({
       </div>
 
       {/* ── Two-column layout ── */}
-      <div className="grid items-start gap-4 lg:grid-cols-[1fr_420px]">
-
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1fr_420px] lg:items-stretch">
         {/* ── Email list panel ── */}
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           {isPending ? (
-            <ul className="divide-y divide-slate-100">
+            <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
               {Array.from({ length: 6 }).map((_, i) => (
                 <li key={i} className="flex items-start gap-3 px-5 py-4">
                   <Skeleton className="mt-0.5 h-4 w-4 shrink-0" />
@@ -153,24 +162,27 @@ export function InboxClient({
               ))}
             </ul>
           ) : rows.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-16 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-16 text-center">
               <MailOpen className="h-8 w-8 text-slate-300" />
               <p className="text-sm text-slate-500">No emails found.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">
               {rows.map((email) => {
                 const isSelected = selected?.id === email.id;
+                const isUnread = !email.is_read;
                 return (
                   <li key={email.id}>
                     <button
                       onClick={() => handleMarkRead(email)}
                       disabled={markingRead === email.id}
                       className={[
-                        "w-full border-l-2 px-5 py-4 text-left transition-all disabled:opacity-60",
+                        "group w-full border-l-2 px-5 py-4 text-left transition-all disabled:opacity-60",
                         isSelected
-                          ? "border-l-slate-950 bg-slate-50"
-                          : "border-l-transparent hover:bg-slate-50",
+                          ? "border-l-slate-950 bg-slate-100/80"
+                          : isUnread
+                            ? "border-l-blue-500 bg-linear-to-r from-blue-50/90 to-white hover:bg-blue-50"
+                            : "border-l-transparent bg-white hover:bg-slate-50",
                       ].join(" ")}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -181,27 +193,33 @@ export function InboxClient({
                               <span className="flex h-4 w-4 items-center justify-center">
                                 <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
                               </span>
-                            ) : email.is_read ? (
-                              <MailOpen className="h-4 w-4 text-slate-400" />
-                            ) : (
+                            ) : isUnread ? (
                               <Mail className="h-4 w-4 text-slate-950" />
+                            ) : (
+                              <MailOpen className="h-4 w-4 text-slate-500" />
                             )}
                           </div>
 
                           {/* Text */}
                           <div className="min-w-0">
-                            <p className={`truncate text-sm ${
-                              email.is_read ? "text-slate-500" : "font-semibold text-slate-950"
-                            }`}>
+                            <p
+                              className={`truncate text-sm ${
+                                isUnread
+                                  ? "font-semibold text-slate-950"
+                                  : "text-slate-700"
+                              }`}
+                            >
                               {email.from_address}
                             </p>
-                            <p className={`mt-0.5 truncate text-sm ${
-                              email.is_read ? "text-slate-400" : "text-slate-700"
-                            }`}>
+                            <p
+                              className={`mt-0.5 truncate text-sm ${
+                                isUnread ? "text-slate-800" : "text-slate-600"
+                              }`}
+                            >
                               {email.subject}
                             </p>
                             {email.text_body && (
-                              <p className="mt-0.5 truncate text-xs text-slate-400">
+                              <p className="mt-0.5 truncate text-xs text-slate-500">
                                 {email.text_body.slice(0, 100)}
                               </p>
                             )}
@@ -210,11 +228,11 @@ export function InboxClient({
 
                         {/* Right side */}
                         <div className="flex shrink-0 flex-col items-end gap-1.5">
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-500">
                             {formatDate(email.created_at)}
                           </p>
                           {!email.is_read && (
-                            <span className="h-2 w-2 rounded-full bg-slate-950" />
+                            <span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.12)]" />
                           )}
                         </div>
                       </div>
@@ -243,7 +261,7 @@ export function InboxClient({
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <span className="min-w-[3rem] text-center text-xs text-slate-600">
+                <span className="min-w-12 text-center text-xs text-slate-600">
                   {currentPage} / {totalPages}
                 </span>
                 <Button
@@ -261,19 +279,23 @@ export function InboxClient({
         </div>
 
         {/* ── Email detail panel ── */}
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           {!selected ? (
-            <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
                 <Mail className="h-5 w-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">No email selected</p>
-                <p className="mt-0.5 text-xs text-slate-400">Click an email from the list to read it.</p>
+                <p className="text-sm font-medium text-slate-700">
+                  No email selected
+                </p>
+                <p className="mt-0.5 text-xs text-slate-400">
+                  Click an email from the list to read it.
+                </p>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col divide-y divide-slate-100">
+            <div className="flex min-h-0 flex-1 flex-col divide-y divide-slate-100">
               {/* Meta section */}
               <div className="space-y-3 p-5">
                 <div className="flex items-start justify-between gap-3">
@@ -289,7 +311,9 @@ export function InboxClient({
 
                 <div className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3 space-y-1.5 text-sm">
                   <div className="flex items-baseline gap-2">
-                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">From</span>
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">
+                      From
+                    </span>
                     <a
                       href={`mailto:${selected.from_address}`}
                       className="truncate text-slate-800 underline-offset-4 hover:underline"
@@ -298,18 +322,26 @@ export function InboxClient({
                     </a>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">To</span>
-                    <span className="truncate text-slate-600">{selected.to_address}</span>
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">
+                      To
+                    </span>
+                    <span className="truncate text-slate-600">
+                      {selected.to_address}
+                    </span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">Date</span>
-                    <span className="text-slate-500 text-xs">{formatDate(selected.created_at)}</span>
+                    <span className="w-8 shrink-0 text-xs font-medium text-slate-400">
+                      Date
+                    </span>
+                    <span className="text-slate-500 text-xs">
+                      {formatDate(selected.created_at)}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Body section */}
-              <div className="p-5">
+              <div className="min-h-0 flex-1 overflow-y-auto p-5">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
                   Message
                 </p>

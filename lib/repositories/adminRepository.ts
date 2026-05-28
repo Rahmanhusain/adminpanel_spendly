@@ -457,7 +457,9 @@ export async function listTenants(opts: {
     values.push(opts.status);
   }
   if (opts.search) {
-    conditions.push(`(t.name ILIKE $${idx} OR t.slug ILIKE $${idx})`);
+    conditions.push(
+      `(t.id::text ILIKE $${idx} OR t.name ILIKE $${idx} OR t.slug ILIKE $${idx})`,
+    );
     values.push(`%${opts.search}%`);
     idx++;
   }
@@ -500,7 +502,7 @@ export async function listUsersForTenant(
 
   if (opts.search) {
     conditions.push(
-      `(u.email ILIKE $${idx} OR u.first_name ILIKE $${idx} OR u.last_name ILIKE $${idx})`,
+      `(u.id::text ILIKE $${idx} OR u.email ILIKE $${idx} OR u.first_name ILIKE $${idx} OR u.last_name ILIKE $${idx})`,
     );
     values.push(`%${opts.search}%`);
     idx++;
