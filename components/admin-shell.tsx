@@ -183,7 +183,9 @@ export function AdminShell({
           )}
         </header>
 
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 sm:py-6 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 sm:py-6 lg:p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

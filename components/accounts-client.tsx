@@ -178,7 +178,10 @@ export function AccountsClient({
         ) : (
           <ul className="divide-y divide-slate-100">
             {rows.map((tenant) => (
-              <li key={tenant.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-5">
+              <li
+                key={tenant.id}
+                className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-5"
+              >
                 <Link
                   href={`/accounts/${tenant.id}`}
                   className="flex min-w-0 flex-1 items-start gap-4 transition-colors hover:bg-slate-50 sm:items-center"
