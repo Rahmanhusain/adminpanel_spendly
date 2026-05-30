@@ -140,8 +140,8 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         {/* Recent inquiries */}
         <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-4">
-            <div>
+          <CardHeader className="flex flex-col items-start justify-between gap-1.5 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
+            <div className="min-w-0">
               <CardTitle className="text-base text-slate-950">
                 Recent inquiries
               </CardTitle>
@@ -168,9 +168,9 @@ export default async function AdminDashboardPage() {
                   <li key={inq.id}>
                     <Link
                       href={`/inquiries`}
-                      className="flex items-start justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50"
+                      className="flex flex-col gap-2 px-4 py-3.5 transition-colors hover:bg-slate-50 sm:flex-row sm:items-start sm:justify-between sm:px-5"
                     >
-                      <div className="flex items-start gap-3 min-w-0">
+                      <div className="flex min-w-0 items-start gap-3">
                         <Circle
                           className={`mt-1.5 h-2 w-2 shrink-0 ${inq.status === "new" ? "fill-slate-950 text-slate-950" : "fill-slate-300 text-slate-300"}`}
                         />
@@ -184,7 +184,7 @@ export default async function AdminDashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col items-end gap-1">
+                      <div className="flex shrink-0 flex-row items-center justify-between gap-2 sm:flex-col sm:items-end sm:gap-1">
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_PILL[inq.status] ?? "bg-slate-100 text-slate-600"}`}
                         >
@@ -242,13 +242,13 @@ export default async function AdminDashboardPage() {
               <div key={href + label}>
                 <Link
                   href={href}
-                  className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50"
+                  className="flex flex-col gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between sm:px-5"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
                       <Icon className="h-3.5 w-3.5 text-slate-600" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-medium text-slate-950">
                         {label}
                       </p>

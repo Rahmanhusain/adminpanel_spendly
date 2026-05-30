@@ -120,7 +120,7 @@ export function InboxClient({
             Emails received at support@spendly.software via Resend webhook.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <EmailComposeDialog
             kind="compose"
             triggerLabel="Compose email"
@@ -140,8 +140,8 @@ export function InboxClient({
       </div>
 
       {/* ── Filters ── */}
-      <div className="flex flex-wrap gap-2.5">
-        <div className="relative min-w-48 flex-1">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+        <div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
             value={searchTerm}
@@ -153,7 +153,7 @@ export function InboxClient({
         <select
           value={isReadFilter}
           onChange={(e) => navigate({ isRead: e.target.value, offset: "0" })}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
         >
           <option value="">All emails</option>
           <option value="false">Unread</option>
@@ -316,7 +316,7 @@ export function InboxClient({
             <div className="flex min-h-0 flex-1 flex-col divide-y divide-slate-100">
               {/* Meta section */}
               <div className="space-y-3 p-5">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <p className="text-base font-semibold leading-snug text-slate-950">
                     {selected.subject}
                   </p>

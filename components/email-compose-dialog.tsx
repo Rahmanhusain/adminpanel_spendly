@@ -114,9 +114,9 @@ export function EmailComposeDialog({
       </Button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-3 py-4 backdrop-blur-sm sm:px-4 sm:py-6">
           <div className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
               <div>
                 <p className="text-base font-semibold text-slate-950">
                   {title}
@@ -132,7 +132,7 @@ export function EmailComposeDialog({
               </button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
               {success ? (
                 <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center">
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
@@ -207,13 +207,13 @@ export function EmailComposeDialog({
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
+            <div className="flex flex-col-reverse gap-2 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6">
               {success ? (
                 <Button
                   type="button"
                   size="sm"
                   onClick={() => setDialogOpen(false)}
-                  className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-500"
+                  className="w-full rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto"
                 >
                   Done
                 </Button>
@@ -224,7 +224,7 @@ export function EmailComposeDialog({
                     variant="outline"
                     size="sm"
                     onClick={() => setDialogOpen(false)}
-                    className="rounded-lg border-slate-200"
+                    className="w-full rounded-lg border-slate-200 sm:w-auto"
                   >
                     Cancel
                   </Button>
@@ -233,7 +233,7 @@ export function EmailComposeDialog({
                     size="sm"
                     onClick={handleSend}
                     disabled={sending || !to || !subject || !message}
-                    className="rounded-lg bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-50"
+                    className="w-full rounded-lg bg-slate-950 text-white hover:bg-slate-800 disabled:opacity-50 sm:w-auto"
                   >
                     {sending ? "Sending…" : triggerLabel}
                   </Button>

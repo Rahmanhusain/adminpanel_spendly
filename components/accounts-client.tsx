@@ -142,7 +142,7 @@ export function AccountsClient({
         <select
           value={statusFilter}
           onChange={(e) => navigate({ status: e.target.value, offset: "0" })}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
         >
           <option value="">All statuses</option>
           <option value="active">Active</option>
@@ -178,10 +178,10 @@ export function AccountsClient({
         ) : (
           <ul className="divide-y divide-slate-100">
             {rows.map((tenant) => (
-              <li key={tenant.id} className="flex items-center gap-2 px-5 py-4">
+              <li key={tenant.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-5">
                 <Link
                   href={`/accounts/${tenant.id}`}
-                  className="flex min-w-0 flex-1 items-center gap-4 transition-colors hover:bg-slate-50"
+                  className="flex min-w-0 flex-1 items-start gap-4 transition-colors hover:bg-slate-50 sm:items-center"
                 >
                   {/* Avatar */}
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50">
@@ -227,7 +227,7 @@ export function AccountsClient({
 
         {/* Pagination */}
         {total > limit && (
-          <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
+          <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <p className="text-xs text-slate-500">
               {offset + 1}–{Math.min(offset + limit, total)} of {total}
             </p>

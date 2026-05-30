@@ -44,7 +44,7 @@ export default function ProtectedLoading() {
             {Array.from({ length: 5 }).map((_, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-xl bg-slate-50 p-4"
+                className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4 sm:flex-row sm:items-center"
               >
                 <SkeletonBlock className="h-8 w-8 rounded-full" />
                 <div className="min-w-0 flex-1 space-y-2">

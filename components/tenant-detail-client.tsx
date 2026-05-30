@@ -410,7 +410,7 @@ export function TenantDetailClient({
               Users{" "}
               <span className="font-normal text-slate-400">({total})</span>
             </p>
-            <div className="relative sm:w-56">
+            <div className="relative w-full sm:w-56">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 value={searchInput}

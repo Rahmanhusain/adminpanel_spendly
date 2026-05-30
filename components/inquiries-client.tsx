@@ -492,7 +492,7 @@ export function InquiriesClient({
             Contact form submissions — {total} total.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <EmailComposeDialog
             kind="compose"
             triggerLabel="Compose email"
@@ -522,7 +522,7 @@ export function InquiriesClient({
         <select
           value={filters.status}
           onChange={(e) => navigate({ status: e.target.value, offset: "0" })}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
         >
           <option value="">All statuses</option>
           {Object.entries(STATUS_LABELS).map(([v, l]) => (
@@ -535,7 +535,7 @@ export function InquiriesClient({
         <select
           value={filters.reason}
           onChange={(e) => navigate({ reason: e.target.value, offset: "0" })}
-          className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
         >
           <option value="">All reasons</option>
           {Object.entries(REASON_LABELS).map(([v, l]) => (
@@ -545,7 +545,7 @@ export function InquiriesClient({
           ))}
         </select>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             type="date"
             value={filters.dateFrom}
@@ -553,14 +553,14 @@ export function InquiriesClient({
               navigate({ dateFrom: e.target.value, offset: "0" })
             }
             title="From date"
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
           />
           <input
             type="date"
             value={filters.dateTo}
             onChange={(e) => navigate({ dateTo: e.target.value, offset: "0" })}
             title="To date"
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-950 sm:w-auto"
           />
         </div>
 

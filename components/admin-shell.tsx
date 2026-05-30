@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   LayoutDashboard,
   Inbox,
@@ -116,6 +116,10 @@ export function AdminShell({
   const [isPending] = useTransition();
   const [loggingOut, setLoggingOut] = useState(false);
 
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   async function handleLogout() {
     setLoggingOut(true);
     await fetch("/api/auth/logout", { method: "POST" });
@@ -124,7 +128,7 @@ export function AdminShell({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex min-h-dvh bg-slate-50">
       {/* Desktop sidebar */}
       <aside className="hidden w-56 shrink-0 bg-slate-950 lg:flex lg:flex-col">
         <SidebarContent
@@ -144,7 +148,7 @@ export function AdminShell({
             className="absolute inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 bg-slate-950 shadow-xl">
+          <aside className="absolute left-0 top-0 h-full w-[85vw] max-w-xs bg-slate-950 shadow-xl">
             <SidebarContent
               adminName={adminName}
               adminEmail={adminEmail}
@@ -160,7 +164,7 @@ export function AdminShell({
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Top bar — mobile + loading indicator */}
-        <header className="flex h-14 shrink-0 items-center border-b border-slate-200 bg-white px-4">
+        <header className="sticky top-0 z-30 flex min-h-14 shrink-0 items-center border-b border-slate-200 bg-white px-3 sm:px-4">
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 lg:hidden"
@@ -179,7 +183,7 @@ export function AdminShell({
           )}
         </header>
 
-        <main className="flex-1 overflow-hidden p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 sm:py-6 lg:p-6">{children}</main>
       </div>
     </div>
   );
